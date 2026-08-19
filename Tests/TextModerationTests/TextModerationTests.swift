@@ -116,3 +116,32 @@ import Testing
     #expect(result.decision == .allowed)
     #expect(result.issues.isEmpty)
 }
+
+/// Verifies that text without URLs does not produce a link issue.
+@Test func linkRuleAllowsTextWithoutLinks() {
+    let rule = LinkRule()
+    
+    let issue = rule.evaluate("This is a normal message.")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that text containing a URL produces a moderation issue by default.
+@Test func linkRuleFlagsTextWithURL() throws {
+    let rule = LinkRule()
+    
+    let issue = try #require(rule.evaluate("Visit https://example.com"))
+    
+    #expect(issue.ruleID == "link")
+    #expect(issue.severity == .medium)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that the link rule can allow a configured number of URLs.
+@Test func linkRuleAllowsConfiguredNumberOfLinks() {
+    let rule = LinkRule(maximumAllowedLinks: 1)
+    
+    let issue = rule.evaluate("Visit https://example.com")
+    
+    #expect(issue == nil)
+}
