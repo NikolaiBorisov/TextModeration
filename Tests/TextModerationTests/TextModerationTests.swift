@@ -354,3 +354,56 @@ import Testing
     #expect(issue.ruleID == "profanity")
     #expect(issue.suggestedDecision == .blocked)
 }
+
+/// Verifies that normal text with a small number of emojis does not produce an issue.
+@Test func emojiRuleAllowsNormalEmojiUsage() {
+    let rule = EmojiRule()
+    
+    let issue = rule.evaluate("Great work 😊")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that too many emojis produce a moderation issue.
+@Test func emojiRuleFlagsTooManyEmojis() throws {
+    let rule = EmojiRule(maximumAllowedEmojiCount: 3)
+    
+    let issue = try #require(rule.evaluate("Nice 😊🔥🎉👍"))
+    
+    #expect(issue.ruleID == "emoji")
+    #expect(issue.severity == .low)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that a high emoji ratio produces a moderation issue.
+@Test func emojiRuleFlagsHighEmojiRatio() throws {
+    let rule = EmojiRule(maximumEmojiRatio: 0.5)
+    
+    let issue = try #require(rule.evaluate("Hi 😊😊😊"))
+    
+    #expect(issue.ruleID == "emoji")
+    #expect(issue.severity == .low)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that emoji-only text can be disallowed.
+@Test func emojiRuleCanDisallowEmojiOnlyText() throws {
+    let rule = EmojiRule(allowsEmojiOnlyText: false)
+    
+    let issue = try #require(rule.evaluate("😊🎉"))
+    
+    #expect(issue.ruleID == "emoji")
+    #expect(issue.severity == .low)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that repeated neighboring emojis produce a moderation issue.
+@Test func emojiRuleFlagsRepeatedEmojis() throws {
+    let rule = EmojiRule(maximumAllowedRepeatedEmojiCount: 2)
+    
+    let issue = try #require(rule.evaluate("Nice 😂😂😂"))
+    
+    #expect(issue.ruleID == "emoji")
+    #expect(issue.severity == .low)
+    #expect(issue.suggestedDecision == .flagged)
+}
