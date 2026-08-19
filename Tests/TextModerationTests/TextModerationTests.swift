@@ -174,3 +174,45 @@ import Testing
     
     #expect(issue == nil)
 }
+
+/// Verifies that ordinary text does not produce a spam issue.
+@Test func spamRuleAllowsOrdinaryText() {
+    let rule = SpamRule()
+    
+    let issue = rule.evaluate("This is a normal message about the project.")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that configured spam keywords produce a moderation issue.
+@Test func spamRuleFlagsSpamKeyword() throws {
+    let rule = SpamRule()
+    
+    let issue = try #require(rule.evaluate("This is a limited offer for you."))
+    
+    #expect(issue.ruleID == "spam")
+    #expect(issue.severity == .medium)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that excessive exclamation marks produce a moderation issue.
+@Test func spamRuleFlagsExcessiveExclamationMarks() throws {
+    let rule = SpamRule(maximumAllowedExclamationMarks: 3)
+    
+    let issue = try #require(rule.evaluate("Win now!!!!"))
+    
+    #expect(issue.ruleID == "spam")
+    #expect(issue.severity == .medium)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that repeated neighboring words produce a moderation issue.
+@Test func spamRuleFlagsRepeatedNeighboringWords() throws {
+    let rule = SpamRule(maximumAllowedRepeatedPhraseCount: 2)
+    
+    let issue = try #require(rule.evaluate("buy buy buy now"))
+    
+    #expect(issue.ruleID == "spam")
+    #expect(issue.severity == .medium)
+    #expect(issue.suggestedDecision == .flagged)
+}
