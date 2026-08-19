@@ -259,3 +259,37 @@ import Testing
     
     #expect(issue == nil)
 }
+
+/// Verifies that ordinary text does not produce a repetition issue.
+@Test func repetitionRuleAllowsOrdinaryText() {
+    let rule = RepetitionRule()
+    
+    let issue = rule.evaluate("This is a normal message with varied words.")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that repeated neighboring words produce a moderation issue.
+@Test func repetitionRuleFlagsRepeatedWords() throws {
+    let rule = RepetitionRule(maximumAllowedRepeatedWordCount: 2)
+    
+    let issue = try #require(rule.evaluate("hello hello hello"))
+    
+    #expect(issue.ruleID == "repetition")
+    #expect(issue.severity == .medium)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that repeated neighboring phrases produce a moderation issue.
+@Test func repetitionRuleFlagsRepeatedPhrases() throws {
+    let rule = RepetitionRule(
+        maximumAllowedRepeatedPhraseCount: 2,
+        phraseLength: 2
+    )
+    
+    let issue = try #require(rule.evaluate("buy now buy now buy now"))
+    
+    #expect(issue.ruleID == "repetition")
+    #expect(issue.severity == .medium)
+    #expect(issue.suggestedDecision == .flagged)
+}
