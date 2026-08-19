@@ -89,6 +89,13 @@ public protocol ModerationRule: Sendable {
 public struct TextModerator: Sendable {
     private let rules: [any ModerationRule]
     
+    /// A default moderator configured with general-purpose text quality rules.
+    public static let `default` = TextModerator(rules: [
+        TextLengthRule(maximumLength: 500),
+        ExcessiveCapsRule(),
+        RepeatedCharactersRule()
+    ])
+    
     /// Creates a text moderator with the provided rules.
     public init(rules: [any ModerationRule]) {
         self.rules = rules
