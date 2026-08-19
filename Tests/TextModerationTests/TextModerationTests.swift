@@ -112,7 +112,7 @@ import Testing
 /// Verifies that the default moderator can be used without manual rule configuration.
 @Test func defaultModeratorReturnsResult() {
     let result = TextModerator.default.moderate("Hello world")
-
+    
     #expect(result.decision == .allowed)
     #expect(result.issues.isEmpty)
 }
@@ -292,4 +292,65 @@ import Testing
     #expect(issue.ruleID == "repetition")
     #expect(issue.severity == .medium)
     #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that text is allowed when no prohibited terms are configured.
+@Test func profanityRuleAllowsTextWithoutConfiguredTerms() {
+    let rule = ProfanityRule(prohibitedTerms: [])
+    
+    let issue = rule.evaluate("This is a normal message.")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that exact prohibited words produce a moderation issue.
+@Test func profanityRuleFlagsConfiguredWord() throws {
+    let rule = ProfanityRule(prohibitedTerms: ["blockedword"])
+    
+    let issue = try #require(rule.evaluate("This contains blockedword."))
+    
+    #expect(issue.ruleID == "profanity")
+    #expect(issue.severity == .high)
+    #expect(issue.suggestedDecision == .blocked)
+}
+
+/// Verifies that prohibited phrases produce a moderation issue.
+@Test func profanityRuleFlagsConfiguredPhrase() throws {
+    let rule = ProfanityRule(prohibitedTerms: ["blocked phrase"])
+    
+    let issue = try #require(rule.evaluate("This contains a blocked phrase."))
+    
+    #expect(issue.ruleID == "profanity")
+    #expect(issue.severity == .high)
+    #expect(issue.suggestedDecision == .blocked)
+}
+
+/// Verifies that simple number and symbol substitutions are normalized before matching.
+@Test func profanityRuleFlagsObfuscatedTerm() throws {
+    let rule = ProfanityRule(prohibitedTerms: ["blockedword"])
+    
+    let issue = try #require(rule.evaluate("bl0cked-w0rd"))
+    
+    #expect(issue.ruleID == "profanity")
+    #expect(issue.suggestedDecision == .blocked)
+}
+
+/// Verifies that repeated characters are collapsed before matching.
+@Test func profanityRuleFlagsRepeatedCharacterObfuscation() throws {
+    let rule = ProfanityRule(prohibitedTerms: ["blockedword"])
+    
+    let issue = try #require(rule.evaluate("bloooockedword"))
+    
+    #expect(issue.ruleID == "profanity")
+    #expect(issue.suggestedDecision == .blocked)
+}
+
+/// Verifies that emoji or punctuation separators are ignored before matching.
+@Test func profanityRuleFlagsSeparatedObfuscation() throws {
+    let rule = ProfanityRule(prohibitedTerms: ["blockedword"])
+    
+    let issue = try #require(rule.evaluate("blocked🔥word"))
+    
+    #expect(issue.ruleID == "profanity")
+    #expect(issue.suggestedDecision == .blocked)
 }
