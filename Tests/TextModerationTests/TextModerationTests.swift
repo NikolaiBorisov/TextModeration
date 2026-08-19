@@ -77,3 +77,34 @@ import Testing
     #expect(issue.severity == .low)
     #expect(issue.suggestedDecision == .flagged)
 }
+
+/// Verifies that normal repeated letters within the allowed limit do not produce an issue.
+@Test func repeatedCharactersRuleAllowsNormalText() {
+    let rule = RepeatedCharactersRule(maximumAllowedRepeats: 4)
+    
+    let issue = rule.evaluate("Cool message!")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that text with too many identical consecutive letters produces a moderation issue.
+@Test func repeatedCharactersRuleFlagsRepeatedLetters() throws {
+    let rule = RepeatedCharactersRule(maximumAllowedRepeats: 4)
+    
+    let issue = try #require(rule.evaluate("heyyyyyy"))
+    
+    #expect(issue.ruleID == "repeated_characters")
+    #expect(issue.severity == .low)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that text with too many identical consecutive symbols produces a moderation issue.
+@Test func repeatedCharactersRuleFlagsRepeatedSymbols() throws {
+    let rule = RepeatedCharactersRule(maximumAllowedRepeats: 4)
+    
+    let issue = try #require(rule.evaluate("!!!!!!"))
+    
+    #expect(issue.ruleID == "repeated_characters")
+    #expect(issue.severity == .low)
+    #expect(issue.suggestedDecision == .flagged)
+}
