@@ -145,3 +145,32 @@ import Testing
     
     #expect(issue == nil)
 }
+
+/// Verifies that text with mentions within the configured limit does not produce an issue.
+@Test func mentionRuleAllowsMentionsWithinLimit() {
+    let rule = MentionRule(maximumAllowedMentions: 2)
+    
+    let issue = rule.evaluate("Thanks @alice and @bob")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that text with too many mentions produces a moderation issue.
+@Test func mentionRuleFlagsTooManyMentions() throws {
+    let rule = MentionRule(maximumAllowedMentions: 2)
+    
+    let issue = try #require(rule.evaluate("Hi @alice @bob @carol"))
+    
+    #expect(issue.ruleID == "mention")
+    #expect(issue.severity == .medium)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that email addresses are not counted as user mentions.
+@Test func mentionRuleDoesNotCountEmailAddresses() {
+    let rule = MentionRule(maximumAllowedMentions: 0)
+    
+    let issue = rule.evaluate("Contact person@example.com")
+    
+    #expect(issue == nil)
+}
