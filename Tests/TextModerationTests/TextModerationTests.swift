@@ -216,3 +216,46 @@ import Testing
     #expect(issue.severity == .medium)
     #expect(issue.suggestedDecision == .flagged)
 }
+
+/// Verifies that ordinary text does not produce a personal data issue.
+@Test func personalDataRuleAllowsOrdinaryText() {
+    let rule = PersonalDataRule()
+    
+    let issue = rule.evaluate("This is a normal public comment.")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that possible email addresses produce a moderation issue.
+@Test func personalDataRuleFlagsEmailAddress() throws {
+    let rule = PersonalDataRule()
+    
+    let issue = try #require(rule.evaluate("Contact me at person@example.com"))
+    
+    #expect(issue.ruleID == "personal_data")
+    #expect(issue.severity == .high)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that possible phone numbers produce a moderation issue.
+@Test func personalDataRuleFlagsPhoneNumber() throws {
+    let rule = PersonalDataRule()
+    
+    let issue = try #require(rule.evaluate("Call me at 415-555-2671"))
+    
+    #expect(issue.ruleID == "personal_data")
+    #expect(issue.severity == .high)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that email detection can be disabled.
+@Test func personalDataRuleCanDisableEmailDetection() {
+    let rule = PersonalDataRule(
+        detectsEmailAddresses: false,
+        detectsPhoneNumbers: false
+    )
+    
+    let issue = rule.evaluate("Contact me at person@example.com")
+    
+    #expect(issue == nil)
+}
