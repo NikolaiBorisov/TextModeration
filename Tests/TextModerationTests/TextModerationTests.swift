@@ -112,7 +112,7 @@ import Testing
 /// Verifies that the default moderator can be used without manual rule configuration.
 @Test func defaultModeratorReturnsResult() {
     let result = TextModerator.default.moderate("Hello world")
-    
+
     #expect(result.decision == .allowed)
     #expect(result.issues.isEmpty)
 }
