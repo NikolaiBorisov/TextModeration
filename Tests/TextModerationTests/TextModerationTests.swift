@@ -48,3 +48,32 @@ import Testing
     #expect(result.isAllowed == false)
     #expect(result.issues.count == 1)
 }
+
+/// Verifies that normal mixed-case text does not produce an excessive caps issue.
+@Test func excessiveCapsRuleAllowsMixedCaseText() {
+    let rule = ExcessiveCapsRule()
+    
+    let issue = rule.evaluate("This is a normal message.")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that short uppercase text does not produce an excessive caps issue.
+@Test func excessiveCapsRuleAllowsShortUppercaseText() {
+    let rule = ExcessiveCapsRule()
+    
+    let issue = rule.evaluate("NASA")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that text with too many uppercase letters produces a moderation issue.
+@Test func excessiveCapsRuleFlagsMostlyUppercaseText() throws {
+    let rule = ExcessiveCapsRule()
+    
+    let issue = try #require(rule.evaluate("THIS IS WAY TOO MUCH"))
+    
+    #expect(issue.ruleID == "excessive_caps")
+    #expect(issue.severity == .low)
+    #expect(issue.suggestedDecision == .flagged)
+}
