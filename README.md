@@ -266,3 +266,21 @@ For high-risk communities or legally sensitive use cases, use TextModeration as 
 ## License
 
 TextModeration is available under the MIT license.
+
+## Screenshots
+
+| Long Text | Excessive Caps |
+| --- | --- |
+| ![Long text moderation](Assets/Screenshots/report-long-text.png) | ![Excessive caps moderation](Assets/Screenshots/report-excessive-caps.png) |
+
+| Repeated Characters | Special Characters |
+| --- | --- |
+| ![Repeated characters moderation](Assets/Screenshots/report-repeated-characters.png) | ![Special characters moderation](Assets/Screenshots/report-special-characters.png) |
+
+| Link Detection | Mention Detection |
+| --- | --- |
+| ![Link moderation](Assets/Screenshots/report-link.png) | ![Mention moderation](Assets/Screenshots/report-mentions.png) |
+
+| Spam Detection | Personal Data |
+| --- | --- |
+| ![Spam moderation](Assets/Screenshots/report-spam.png) | ![Personal data moderation](Assets/Screenshots/report-personal-data.png) |
