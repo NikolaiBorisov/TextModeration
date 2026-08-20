@@ -407,3 +407,58 @@ import Testing
     #expect(issue.severity == .low)
     #expect(issue.suggestedDecision == .flagged)
 }
+
+/// Verifies that normal punctuation does not produce a special characters issue.
+@Test func specialCharactersRuleAllowsNormalPunctuation() {
+    let rule = SpecialCharactersRule()
+    
+    let issue = rule.evaluate("Hello, how are you?")
+    
+    #expect(issue == nil)
+}
+
+/// Verifies that too many special characters produce a moderation issue.
+@Test func specialCharactersRuleFlagsTooManySpecialCharacters() throws {
+    let rule = SpecialCharactersRule(maximumAllowedSpecialCharacterCount: 5)
+    
+    let issue = try #require(rule.evaluate("@#$%^&* hello"))
+    
+    #expect(issue.ruleID == "special_characters")
+    #expect(issue.severity == .low)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that a high special-character ratio produces a moderation issue.
+@Test func specialCharactersRuleFlagsHighSpecialCharacterRatio() throws {
+    let rule = SpecialCharactersRule(maximumSpecialCharacterRatio: 0.4)
+    
+    let issue = try #require(rule.evaluate("hi @#$%"))
+    
+    #expect(issue.ruleID == "special_characters")
+    #expect(issue.severity == .low)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that symbol-only text is disallowed by default.
+@Test func specialCharactersRuleFlagsSymbolOnlyText() throws {
+    let rule = SpecialCharactersRule()
+    
+    let issue = try #require(rule.evaluate("@#$%^"))
+    
+    #expect(issue.ruleID == "special_characters")
+    #expect(issue.severity == .low)
+    #expect(issue.suggestedDecision == .flagged)
+}
+
+/// Verifies that symbol-only text can be allowed.
+@Test func specialCharactersRuleCanAllowSymbolOnlyText() {
+    let rule = SpecialCharactersRule(
+        maximumAllowedSpecialCharacterCount: 10,
+        maximumSpecialCharacterRatio: 1.0,
+        allowsSymbolOnlyText: true
+    )
+    
+    let issue = rule.evaluate("@#$%^")
+    
+    #expect(issue == nil)
+}
