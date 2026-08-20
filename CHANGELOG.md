@@ -3,6 +3,13 @@
 
 All notable changes to TextModeration will be documented in this file.
 
+## [0.1.1] - 2026-08-20
+
+### Added
+
+- `SpecialCharactersRule` for detecting excessive special characters, high symbol ratios, and symbol-only text.
+- `SpecialCharactersRule` to the default moderator configuration.
+
 ## [0.1.0] - 2026-08-19
 
 ### Added

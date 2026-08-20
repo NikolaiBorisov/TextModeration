@@ -127,6 +127,17 @@ Reports text containing the same character repeated too many times in a row.
                            )
 ```
 
+### SpecialCharactersRule
+
+Reports excessive use of special characters or symbol-only text.
+
+```swift
+SpecialCharactersRule(
+    maximumAllowedSpecialCharacterCount: 12,
+    maximumSpecialCharacterRatio: 0.4,
+    allowsSymbolOnlyText: false
+)
+
 ### LinkRule
 
 Reports text containing more URLs than allowed.
