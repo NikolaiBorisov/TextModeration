@@ -1,5 +1,7 @@
 # TextModeration
 
+![Version](https://img.shields.io/badge/version-1.0.0-brightgreen) ![Swift](https://img.shields.io/badge/Swift-6-orange) ![iOS](https://img.shields.io/badge/iOS-15%2B-blue) ![SPM](https://img.shields.io/badge/SPM-supported-brightgreen) ![License](https://img.shields.io/badge/license-MIT-green)
+
 TextModeration is a native Swift Package for rule-based, on-device moderation of user-generated text.
 
 It helps Swift apps prevent or flag text that matches configurable unsafe, spammy, privacy-sensitive, or undesirable content rules without sending text to a server.
